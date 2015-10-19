@@ -1,0 +1,165 @@
+#include<iostream>
+using namespace std;
+
+class CGoods   //商品类 
+{
+private:
+	long no;    //商品编号 
+	char *p_name;    //商品名称 
+	double price;    //商品价格 
+public:
+	static int count; //商品计数 
+	CGoods()          //默认构造函数
+	{
+		no = 0;
+		p_name = " ";
+		price = 0.0;
+		count++;
+	}
+
+	CGoods(long n,char *name,double pri)//赋值构造函数
+	{
+		no = n;
+		p_name = name;
+		price = pri;
+		count++;
+	}
+
+	CGoods(const CGoods &b)//复制构造函数
+	{
+		no = b.no;
+		p_name = b.p_name;
+		price = b.price;
+		count++;
+	}
+
+	void display()const;       //显示对象属性函数 
+
+	static int getCount();//取得商品个数函数 
+
+	friend char* getName(const CGoods g);//声明此函数为该类的友元函数 
+
+	bool operator<(CGoods g2);   //重载“<”符号运算符 
+	bool operator>=(CGoods g2);  //重载“>=”符号运算符 
+
+	virtual void usedFor();
+
+	~CGoods(){count--;}    //析构函数
+};
+void CGoods::usedFor()
+{
+	display();
+	cout<<"商品用途：总类"<<endl;
+}
+
+
+
+class CClothes:public CGoods  //服装类，继承于商品类 
+{
+private:
+	char *p_brand;
+public:
+	CClothes(long n,char *name,double pri,char *p_bran):CGoods(n,name,pri)
+	{
+		p_brand = p_bran;
+	}
+
+	void usedFor();
+	~CClothes(){count--;};
+};
+void CClothes::usedFor()
+{
+	display();
+	cout<<"商品用途：服装类商品，穿着"<<endl;
+}
+
+
+class CFood:public CGoods   //食品类，继承于商品类 
+{
+private:
+	char *p_brand;
+public:
+	CFood(long n,char *name,double pri,char *p_bran):CGoods(n,name,pri)
+	{
+		p_brand = p_bran;
+	}
+	void usedFor();
+	~CFood(){count--;};
+};
+void CFood::usedFor()
+{
+	display();
+	cout<<"商品用途：食品类，可食用"<<endl;
+}
+
+
+
+int CGoods::count = 0;    //初始化商品计数为0 
+
+void CGoods::display()const
+{
+	cout<<"商品编号："<<no<<endl;
+	cout<<"商品名称："<<p_name<<endl;
+	cout<<"商品价格："<<price<<endl;
+}
+
+int CGoods::getCount()
+{
+	return count;
+}
+
+char* getName(const CGoods cg)
+{
+	return cg.p_name;
+}
+
+bool CGoods::operator<(CGoods g2)
+{
+	if(price < g2.price)
+		return true;
+	else
+		return false;
+}
+
+bool CGoods::operator>=(CGoods g2)
+{
+	if(price >= g2.price)
+		return true;
+	else
+		return false;
+}
+
+int main()
+{
+	CGoods good,gb;
+	gb = CGoods(good);
+	cout<<"count="<<CGoods::getCount()<<endl;
+	CGoods::count++;
+	good.display();
+	gb.display();
+	cout<<"count="<<CGoods::getCount()<<endl;
+	cout<<getName(gb)<<endl;
+
+	cout<<endl;
+
+	good = CGoods(1003,"haha",32.1);
+	gb = CGoods(1002,"baishi",30.0);
+	if(good < gb)
+		cout<<"百事贵"<<endl;
+	else if(good >= gb)
+	{
+		cout<<"哇哈哈贵"<<endl;
+	}
+
+	CGoods* pt;       //实现动态联编
+	CClothes clothes(1001,"PlayBoy时尚男装",1000.0,"PlayBoy");
+	pt = &clothes;
+	pt->usedFor();
+
+	cout<<endl;
+	CFood bread(1004,"三明治",23.5,"罗莎蛋糕");
+	pt = &bread;
+	pt->usedFor();
+
+	return 0;
+}
