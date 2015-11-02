@@ -1,0 +1,180 @@
+//面向对象方法学第二次作业
+//
+
+#include<iostream>
+#include<string> //要用到string类型时需要此头文件
+
+using namespace std;
+
+class Worker   //工人基类
+{
+protected:
+	string name;
+	int age;
+	char sex;  //M代表Man，男性；F代表Female，女性
+	char category; //工人类型：H代表HourlyWorker；S代表SalariedWorker
+	double hours;
+	int pay_per_hour;
+
+public:
+	void Name()
+	{
+		cout<<name;
+	}
+	virtual void InputInfo()=0;//输入信息，纯虚函数
+	virtual double Compute_pay(double hours)=0; //周薪计算成员函数，纯虚函数
+	friend ostream& operator<<(ostream &out,Worker &worker);//用于显示工人基本信息的标准输出运算符友元函数
+	virtual void InputHours()=0;//输入工作时间函数，纯虚函数
+	double GetHours()
+	{
+		return hours;
+	}
+};
+ostream& operator<<(ostream &out,Worker &worker)
+{
+	out<<"Worker's name:"<<worker.name<<endl;
+	out<<"Worker's age:"<<worker.age<<endl;
+	out<<"Worker's sex:"<<worker.sex<<endl;
+	out<<"Worker's category:"<<worker.category<<endl;
+	out<<"Worker's pay_per_hour:"<<worker.pay_per_hour<<endl;
+	return out;
+}
+
+
+class HourlyWorker:public Worker //计时工人类，继承工人基类
+{
+private:
+	double week_pay;
+public:
+	void InputInfo();  //声明计时工人信息输入函数
+	void InputHours(); //声明计时工人工作时长输入函数
+	double Compute_pay(double hours);//声明周薪计算成员函数
+};
+void HourlyWorker::InputInfo()
+{
+	category = 'H';
+	cout<<"Please input HourlyWorker's name:";
+	cin>>name;
+	cout<<"Please input HourlyWorker's age:";
+	cin>>age;
+	cout<<"Please input HourlyWorker's sex:";
+	cin>>sex;
+	cout<<"Please input HourlyWorker's pay_per_hour:";
+	cin>>pay_per_hour;
+};
+void HourlyWorker::InputHours()
+{
+	cout<<"Please input HourlyWorker's hours:";
+	cin>>hours;
+};
+double HourlyWorker::Compute_pay(double hours)
+{
+	if(hours <= 40.0)
+	{
+		week_pay = hours * pay_per_hour;
+	}
+	else if(hours > 40.0)
+	{
+		week_pay = 40.0 * pay_per_hour + 1.5 * pay_per_hour * (hours - 40.0);
+	}
+	return week_pay;
+};
+
+
+class SalariedWorker:public Worker //计薪工人类，继承工人基类
+{
+private:
+	double week_pay;
+public:
+	void InputInfo();  //声明计薪工人信息输入函数
+	void InputHours(); //声明计薪工人工作时长输入函数
+	double Compute_pay(double hours);//声明周薪计算成员函数
+};
+void SalariedWorker::InputInfo()
+{
+	category = 'S';
+	cout<<"Please input SalariedWorker's name:";
+	cin>>name;
+	cout<<"Please input SalariedWorker's age:";
+	cin>>age;
+	cout<<"Please input SalariedWorker's sex:";
+	cin>>sex;
+	cout<<"Please input SalariedWorker's pay_per_hour:";
+	cin>>pay_per_hour;
+}
+void SalariedWorker::InputHours()
+{
+	cout<<"Please input SalariedWorker's hours:";
+	cin>>hours;
+}
+double SalariedWorker::Compute_pay(double hours)
+{
+	if(hours < 35.0)
+	{
+		week_pay = pay_per_hour * hours + 0.5 * pay_per_hour * (35 - hours);
+	}
+	else if(hours >= 35.0 && hours <= 40.0)
+	{
+		week_pay = pay_per_hour * hours;
+	}
+	else
+		week_pay = pay_per_hour * 40.0;
+	return week_pay;
+}
+
+
+int main()
+{
+	Worker *workers[5];
+	void menu(Worker *workers[]);
+
+	for(int i = 0;i < 5;i++)   //输入每个工人的基本信息
+	{
+		char category;
+		cout<<"Please choose the category of worker that you want to add('H' means 'HourlyWorker';'S' means 'SalariedWorker'):";
+		cin>>category;
+		switch(category)
+		{
+		case 'H':
+			workers[i] = new HourlyWorker();
+			break;
+		case 'S':
+			workers[i] = new SalariedWorker();
+			break;
+		}
+		workers[i]->InputInfo();
+		cout<<endl;
+	}
+	
+	menu(workers);
+
+	for(int i = 0;i < 5;i++)
+		delete workers[i];
+
+	return 0;
+}
+
+void menu(Worker *workers[])
+{
+	char choice;
+	do
+	{
+		for(int i = 0;i < 5;i++)
+		{
+			cout<<i+1<<")";
+			workers[i]->Name();
+			cout<<endl;
+		}
+		cout<<"Please choose a worker to look his(her) information and salary:";
+		cin>>choice;
+
+		if(choice != 'q')
+		{
+			cout<<*workers[choice-49];
+			workers[choice-49]->InputHours();
+			cout<<"This worker's week_pay is:"<<workers[choice-49]->Compute_pay(workers[choice-49]->GetHours());
+			cout<<endl<<endl;
+		}
+	}
+	while(choice != 'q');
+}
